@@ -2,3 +2,4 @@
 # Python specific ignores
 *.pyc
 __pycache__/
+local/
