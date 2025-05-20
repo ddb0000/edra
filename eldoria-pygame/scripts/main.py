@@ -1,39 +1,55 @@
-import pygame, sys
-from character import Player
-from map import TileMap
-from camera import Camera
+# scripts/main.py
+
+import pygame
+from tilemap import load_tileset, TileMap
+from player import Player
+from ui import UIManager
+from settings import (
+    SCREEN_WIDTH, SCREEN_HEIGHT, FPS,
+    TILESET_PATH
+)
 
 def main():
     pygame.init()
-    SW, SH = 800, 600
-    screen = pygame.display.set_mode((SW, SH))
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Eldoria War RPG")
     clock = pygame.time.Clock()
 
-    # agora usamos o tileset de chão, tamanho 32×32
-    tilemap = TileMap('Floors_Tiles.png', 32, 32)
-    cam = Camera(tilemap.width, tilemap.height, SW, SH)
+    tiles = load_tileset(TILESET_PATH)
+    map_layout = [[0] * 50 for _ in range(30)]
+    game_map = TileMap(map_layout, tiles)
+    player = Player(x=100, y=100)
+    ui = UIManager(screen)
+    obstacles = []
+    cam = pygame.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-    player = Player(100, 100)
-    player_group = pygame.sprite.GroupSingle(player)
+    show_dialog_once = True
 
-    while True:
-        for e in pygame.event.get():
-            if e.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+    running = True
+    while running:
+        dt = clock.tick(FPS) / 1000.0
 
-        keys = pygame.key.get_pressed()
-        player.handle_input(keys)
-        player_group.update()
-        cam.update(player.rect)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-        screen.fill((0,0,0))
-        tilemap.draw(screen, cam)
-        for spr in player_group:
-            screen.blit(spr.image, cam.apply(spr.rect))
+        player.update(dt, obstacles)
 
+        if show_dialog_once:
+            ui.show_text("Teste de diálogo! Aperte E para continuar.")
+            show_dialog_once = False
+
+        cam.x = player.rect.centerx - (SCREEN_WIDTH // 2)
+        cam.y = player.rect.centery  - (SCREEN_HEIGHT // 2)
+        cam.x = max(0, min(cam.x, game_map.width  - SCREEN_WIDTH))
+        cam.y = max(0, min(cam.y, game_map.height - SCREEN_HEIGHT))
+
+        screen.fill((0, 0, 0))
+        game_map.draw(screen, cam)
+        screen.blit(player.image, (player.rect.x - cam.x, player.rect.y - cam.y))
         pygame.display.flip()
-        clock.tick(60)
 
-if __name__ == '__main__':
+    pygame.quit()
+
+if __name__ == "__main__":
     main()
