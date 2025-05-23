@@ -16,12 +16,11 @@ CONFIGURED_TARGETS = [
         "project_root_subdir": "eldoria-pygame",
         "scripts_subdir": "scripts"
     },
-    # To add more script locations, you can add more dictionaries here. For example:
-    # {
-    #     "name": "My Other Project Tools",
-    #     "project_root_subdir": "another-project", # Assumes c:\Users\dan\Code\edra\another-project
-    #     "scripts_subdir": "tools"                 # Assumes ...\another-project\tools
-    # },
+    {
+        "name": "gg",
+        "project_root_subdir": "gg",
+        "scripts_subdir": "scripts"
+    },
 ]
 
 def main():
